@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Profiles_list</title>
+</head>
+<body>
+
+<style>
+  table {
+    padding: 10px;
+  }
+  th, td {
+    padding-left: 10px;
+  }
+</style>
+
+<table>
+    <tr>
+        <th>ФИО:</th>
+        <th>ИНН:</th>
+        <th>На счете:</th>
+    </tr>
+    {% for profile in profiles %}
+    <tr>
+        <td>{{ profile.full_name }}</td>
+        <td>{{ profile.inn }}</td>
+        <td>{{ profile.wallet }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+</body>
+</html>

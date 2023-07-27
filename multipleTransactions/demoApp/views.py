@@ -1,3 +1,10 @@
-from django.shortcuts import render
+from django.views.generic import FormView, ListView
+from .models import Profile
 
-# Create your views here.
+
+class Profiles(ListView):
+    model = Profile
+    template_name = 'profiles.html'
+    context_object_name = 'profiles'
+
+
