@@ -1,7 +1,9 @@
 from django.views.generic import FormView, ListView, CreateView
+from django.urls import reverse_lazy
+
 from .models import Profile
 from .forms import FormAddProfile, FormAddTransaction
-from django.urls import reverse_lazy
+from .utils import Transaction
 
 
 class ShowProfilesView(ListView):
@@ -26,9 +28,8 @@ class CreateTransactionView(FormView):
 
         if form.is_valid():
             data = form.cleaned_data
-            print("Форма валидна", data)
-            print(data["wallet"], data["inns"])
-
+            t = Transaction(payer=data["full_name"], inns=data["inns"], money_to_be_debited=data["wallet"])
+            t.run()
         else:
             print("Форма не валидна")
 
