@@ -15,7 +15,9 @@ class Transaction:
         self.money = Decimal(money_to_be_debited)
 
     def run(self):
-        #
+        """Создание и обработка транзакции"""
+        sender_wallet = Profile.objects.get(pk=self.payer.pk).wallet
+        recipient_wallets = Profile.objects.filter(inn__in=self.inns_list).values_list('id', 'wallet')
         try:
             up_wallet = self.calculate_average()
             down_wallet = self.calculate_subtraction(up_wallet)
@@ -25,7 +27,16 @@ class Transaction:
                 print(f"Списано {down_wallet} по {up_wallet} с {self.count_recipients} пользователей")
 
         except Exception as e:
+            Profile.objects.get(pk=self.payer.pk).wallet = sender_wallet
             print("Транзакция отменена: ", e)
+            print("Возвращено значение кошелька для ", self.payer, " на ", sender_wallet)
+            for obj in recipient_wallets:
+                Profile.objects.get(id=obj[0]).wallet = obj[1]
+                print("Возвращено значение кошелька получателя №", obj[0], " на ", obj[1])
+        else:
+            del sender_wallet
+            del recipient_wallets
+
         finally:
             print(self.__str__())
 
