@@ -20,3 +20,16 @@ class CreateTransactionView(FormView):
     form_class = FormAddTransaction
     template_name = 'transaction.html'
     success_url = reverse_lazy('profiles')
+
+    def post(self, request, *args, **kwargs):
+        form = self.get_form()
+
+        if form.is_valid():
+            data = form.cleaned_data
+            print("Форма валидна", data)
+            print(data["wallet"], data["inns"])
+
+        else:
+            print("Форма не валидна")
+
+        return super().post(request, *args, **kwargs)
