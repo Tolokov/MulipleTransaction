@@ -9,7 +9,7 @@ class Profile(models.Model):
     wallet = models.DecimalField("Кошелёк", max_digits=12, decimal_places=2, default=0.00)
 
     def __str__(self):
-        return f'{self.full_name}'
+        return f'{self.full_name, self.inn}'
 
     class Meta:
         unique_together = (('full_name', 'inn'),)

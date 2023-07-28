@@ -16,7 +16,7 @@ class AddProfileView(CreateView):
     success_url = reverse_lazy('profiles')
 
 
-class CreateTransactionView(CreateView):
+class CreateTransactionView(FormView):
     form_class = FormAddTransaction
     template_name = 'transaction.html'
     success_url = reverse_lazy('profiles')
