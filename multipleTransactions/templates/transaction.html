@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Transaction</title>
+</head>
+<body>
+<style>
+    form {
+    padding: 50px;
+  }
+
+</style>
+
+<form method="post">
+    {% csrf_token %}
+    {{ form }}
+
+    <input type="submit" value="Осуществить транзакцию">
+</form>
+<br>
+<form>
+
+</form>
+
+
+</body>
+</html>

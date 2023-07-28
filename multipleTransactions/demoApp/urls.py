@@ -1,7 +1,10 @@
 from django.urls import path
 
-from .views import Profiles
+from .views import ShowProfilesView, AddProfileView, CreateTransactionView
 
 urlpatterns = [
-    path('', Profiles.as_view(), name='profiles')
+    path('', ShowProfilesView.as_view(), name='profiles'),
+    path('add/', AddProfileView.as_view(), name='add_profile'),
+    path('transaction/', CreateTransactionView.as_view(), name='add_transaction'),
+
 ]
