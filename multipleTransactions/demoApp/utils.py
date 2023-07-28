@@ -33,6 +33,7 @@ class Transaction:
             for obj in recipient_wallets:
                 Profile.objects.get(id=obj[0]).wallet = obj[1]
                 print("Возвращено значение кошелька получателя №", obj[0], " на ", obj[1])
+
         else:
             del sender_wallet
             del recipient_wallets
@@ -41,22 +42,22 @@ class Transaction:
             print(self.__str__())
 
     def calculate_average(self):
-        """Высчитывает, сколько должен средств должен получить каждый пользователь"""
+        """Высчитывает, сколько средств должен получить каждый пользователь"""
         item = Decimal(self.money / self.count_recipients).quantize(Decimal('0.00'), rounding=ROUND_DOWN)
         return item
 
     def calculate_subtraction(self, up_wallet):
-        """Перезаписывает значение Wallet в базе данных"""
+        """Высчитывает сумму списания"""
         item = up_wallet * self.count_recipients
         return item
 
     def up_wallet_in_model(self, up_wallet):
-        """Увеличение значения кошелька пользователей с перечисленными ИНН"""
+        """Перезаписывает значения Wallet, пользователей с перечисленными ИНН"""
         Profile.objects.filter(inn__in=self.inns_list).update(wallet=F("wallet") + up_wallet)
         return True
 
     def down_wallet(self, down_wallet):
-        """Уменьшение значения кошелька конкретного пользователя"""
+        """Уменьшение значение Wallet конкретного пользователя"""
         Profile.objects.filter(pk=self.payer.pk).update(wallet=F("wallet") - down_wallet)
         return True
 

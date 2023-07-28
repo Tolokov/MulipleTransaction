@@ -1,12 +1,12 @@
-from django import forms
-from django.forms import ModelChoiceField, ModelForm, CharField, DecimalField
-
+from django.forms import ModelChoiceField, ModelForm, CharField, DecimalField, Form
 from django.core.exceptions import ValidationError
 
 from .models import Profile
 
 
 class FormAddProfile(ModelForm):
+    """Форма для добавления нового пользователя"""
+
     class Meta:
         model = Profile
         fields = "__all__"
@@ -32,7 +32,9 @@ class FormAddProfile(ModelForm):
         return data
 
 
-class FormAddTransaction(forms.Form):
+class FormAddTransaction(Form):
+    """Форма для проведения перевода"""
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["full_name"].empty_label = "---Выберите пользователя---"
