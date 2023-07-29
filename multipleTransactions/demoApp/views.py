@@ -31,6 +31,6 @@ class CreateTransactionView(FormView):
             t = Transaction(payer=data["full_name"], inns=data["inns"], money_to_be_debited=data["wallet"])
             t.run()
         else:
-            print("Форма не валидна")
+            repr("Форма не валидна")
 
         return super().post(request, *args, **kwargs)

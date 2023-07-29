@@ -23,8 +23,8 @@ class Transaction:
             down_wallet = self.calculate_subtraction(up_wallet)
 
             if self.up_wallet_in_model(up_wallet) and self.down_wallet(down_wallet):
-                print("Транзакция проведена успешно")
-                print(f"Списано {down_wallet} по {up_wallet} с {self.count_recipients} пользователей")
+                repr("Транзакция проведена успешно")
+                repr(f"Списано {down_wallet} по {up_wallet} с {self.count_recipients} пользователей")
 
         except Exception as e:
             Profile.objects.get(pk=self.payer.pk).wallet = sender_wallet
@@ -39,7 +39,7 @@ class Transaction:
             del recipient_wallets
 
         finally:
-            print(self.__str__())
+            repr(self.__str__())
 
     def calculate_average(self):
         """Высчитывает, сколько средств должен получить каждый пользователь"""
