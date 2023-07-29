@@ -51,6 +51,8 @@ class FormAddTransaction(Form):
             raise ValidationError("Введен неверный ИНН")
         elif data.__len__() > 12 and data.count(",") == 0:
             raise ValidationError("Неправильный формат ввода данных")
+        elif data[-1] == ",":
+            raise ValidationError("Перечисление не может начинаться или заканчиваться разделителем")
         elif not data.replace(",", "").isdigit():
             raise ValidationError("Идентификационный номер налогоплательщика должен содержать только цифры и запятые")
 

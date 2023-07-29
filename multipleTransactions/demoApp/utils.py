@@ -10,7 +10,7 @@ class Transaction:
 
     def __init__(self, payer, inns: str, money_to_be_debited):
         self.payer = payer
-        self.inns_list = inns.split(",")
+        self.inns_list = inns.strip(",").split(",")
         self.count_recipients = self.inns_list.__len__()
         self.money = Decimal(money_to_be_debited)
 
