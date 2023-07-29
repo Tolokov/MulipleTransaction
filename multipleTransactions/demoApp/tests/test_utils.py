@@ -17,10 +17,10 @@ class UtilsTestCase(TestCase):
         user_five = User.objects.create_user(username='testuser5', password='15321')
 
         self.one = Profile.objects.create(user=user_one, full_name="1", inn="101", wallet=Decimal("0.0"))
-        self.two = Profile.objects.create(user=user_two, full_name="2", inn="102", wallet=Decimal("10.00"))
-        self.three = Profile.objects.create(user=user_three, full_name="3", inn="103", wallet=Decimal("100.00"))
-        self.four = Profile.objects.create(user=user_four, full_name="4", inn="104", wallet=Decimal("0.0"))
-        self.five = Profile.objects.create(user=user_five, full_name="5", inn="105", wallet=Decimal("0.0"))
+        self.two = Profile.objects.create(user=user_two, full_name="2", inn="202", wallet=Decimal("0.00"))
+        self.three = Profile.objects.create(user=user_three, full_name="3", inn="303", wallet=Decimal("00.00"))
+        self.four = Profile.objects.create(user=user_four, full_name="4", inn="404", wallet=Decimal("100.0"))
+        self.five = Profile.objects.create(user=user_five, full_name="5", inn="505", wallet=Decimal("100.0"))
 
     def test_init(self):
         t = Transaction(payer="3", inns="101,102", money_to_be_debited=50.00)
@@ -89,6 +89,41 @@ class UtilsTestCase(TestCase):
             t = Transaction(payer="2", inns=i[0], money_to_be_debited=i[1])
             item = t.calculate_average()
             self.assertEqual(item, i[2], msg=f"{num}")
+
+    def test_run_successful_transaction(self):
+        transaction = Transaction(self.four, "101,202,303", 30)
+        transaction.run()
+        self.assertEqual(Profile.objects.get(pk=self.four.pk).wallet, 70)
+        self.assertEqual(Profile.objects.get(inn='101').wallet, 10)
+        self.assertEqual(Profile.objects.get(inn='202').wallet, 10)
+        self.assertEqual(Profile.objects.get(inn='303').wallet, 10)
+
+        # write-off from oneself
+        transaction = Transaction(self.four, "404", 30)
+        transaction.run()
+        self.assertEqual(Profile.objects.get(pk=self.four.pk).wallet, 70)
+
+        transaction = Transaction(self.four, "505", 70)
+        transaction.run()
+        self.assertEqual(Profile.objects.get(pk=self.four.pk).wallet, 0)
+        self.assertEqual(Profile.objects.get(pk=self.five.pk).wallet, 170)
+
+        transaction = Transaction(self.five, "101,202,303,404,505", 170)
+        transaction.run()
+        self.assertEqual(Profile.objects.get(inn='101').wallet, 44)
+        self.assertEqual(Profile.objects.get(inn='202').wallet, 44)
+        self.assertEqual(Profile.objects.get(inn='303').wallet, 44)
+        self.assertEqual(Profile.objects.get(inn='404').wallet, 34)
+        self.assertEqual(Profile.objects.get(inn='505').wallet, 34)
+
+    def test_run_failed_transaction(self):
+        transaction = Transaction(self.four, "101,202,303", 100)
+        transaction.run()
+
+        # transaction canceled
+        self.assertEqual(Profile.objects.get(pk=self.one.pk).wallet, Decimal('33.33'))
+        self.assertEqual(Profile.objects.get(inn='101').wallet, Decimal('33.33'))
+        self.assertEqual(Profile.objects.get(inn='303').wallet, Decimal('33.33'))
 
     def tearDown(self):
         del self.two, self.one, self.three, self.four, self.five
