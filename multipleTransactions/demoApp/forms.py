@@ -39,7 +39,7 @@ class FormAddTransaction(Form):
         super().__init__(*args, **kwargs)
         self.fields["full_name"].empty_label = "---Выберите пользователя---"
 
-    Queryset = Profile.objects.filter(wallet__gt=0.01)
+    Queryset = Profile.objects.filter(wallet__gt=0.00)
 
     full_name = ModelChoiceField(queryset=Queryset, label="Имя пользователя")
     wallet = DecimalField(max_digits=12, decimal_places=2, min_value=0.00, label="К списанию")
