@@ -1,4 +1,4 @@
-from rest_framework import serializers, validators, exceptions
+from rest_framework import serializers
 
 from .models import Profile
 
@@ -37,3 +37,10 @@ class ProfileCreateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 "Идентификационный номер налогоплательщика должен состоять из 10 или 12 символов")
         return value
+
+
+class TransactionCreateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Profile
+        fields = "__all__"
