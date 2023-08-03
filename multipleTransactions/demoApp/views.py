@@ -1,36 +1,24 @@
-from django.views.generic import FormView, ListView, CreateView
-from django.urls import reverse_lazy
-
+from rest_framework import generics, response, views, status
+from .serializers import ProfileListSerializer, ProfileCreateSerializer
 from .models import Profile
-from .forms import FormAddProfile, FormAddTransaction
-from .utils import Transaction
 
 
-class ShowProfilesView(ListView):
-    model = Profile
-    template_name = 'profiles.html'
-    context_object_name = 'profiles'
+class ProfileListView(generics.ListAPIView):
+    """Представление списка записей пользователя"""
+    serializer_class = ProfileListSerializer
+
+    def get_queryset(self):
+        profiles = Profile.objects.all()
+        return profiles
 
 
-class AddProfileView(CreateView):
-    form_class = FormAddProfile
-    template_name = 'add_profile.html'
-    success_url = reverse_lazy('profiles')
-
-
-class CreateTransactionView(FormView):
-    form_class = FormAddTransaction
-    template_name = 'transaction.html'
-    success_url = reverse_lazy('profiles')
-
-    def post(self, request, *args, **kwargs):
-        form = self.get_form()
-
-        if form.is_valid():
-            data = form.cleaned_data
-            t = Transaction(payer=data["full_name"], inns=data["inns"], money_to_be_debited=data["wallet"])
-            t.run()
+class ProfileCreateView(views.APIView):
+    def post(self, request):
+        profiles = ProfileCreateSerializer(data=request.data)
+        if profiles.is_valid():
+            print('данные валидны')
+            profiles.save()
+            return response.Response(status=201)
         else:
-            repr("Форма не валидна")
-
-        return super().post(request, *args, **kwargs)
+            print('данные НЕ валидны')
+            return response.Response(profiles.errors, status=status.HTTP_400_BAD_REQUEST)
