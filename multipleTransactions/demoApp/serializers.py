@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from django.forms.models import model_to_dict
 
 from .models import Profile
 
@@ -65,10 +66,12 @@ class TransactionCreateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 "Идентификационный номер налогоплательщика должен содержать только цифры и запятые")
 
-        inns_split = set(value.split(","))
-        for inn in inns_split:
-            orm_response = Profile.objects.filter(inn=inn)
-            if not bool(orm_response):
+        inns_list = list(set(value.split(",")))
+        profiles = Profile.objects.filter(inn__in=inns_list)
+        profile_dict = {profile.inn: model_to_dict(profile) for profile in profiles}
+
+        for inn in inns_list:
+            if inn not in profile_dict:
                 raise serializers.ValidationError("Одного из пользователей, с представленным ИНН, не существует")
         return value
 
