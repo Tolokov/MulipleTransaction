@@ -63,4 +63,4 @@ class Transaction:
         return True
 
     def __str__(self):
-        return str(f"{self.payer, self.inns_list, self.count_recipients, self.money}")
+        return str(f"{self.payer, self.inn, self.inns_list, self.count_recipients, self.money}")
