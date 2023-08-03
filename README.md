@@ -3,9 +3,9 @@
 ___
 # branch Develop
 
-![doc api](../../Downloads/ilovepdf_pages-to-jpg/API Documentation_page-1.jpg)
+![doc api](https://github.com/Tolokov/MulipleTransaction/blob/develop/API%20Documentation_page-1.jpg?raw=true)
 
-![doc api](../../Downloads/ilovepdf_pages-to-jpg/API Documentation_page-2.jpg)
+![doc api](https://raw.githubusercontent.com/Tolokov/MulipleTransaction/develop/API%20Documentation_page-2.jpg)
 ___
 # branch Master
 
