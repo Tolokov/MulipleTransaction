@@ -1,5 +1,5 @@
 from rest_framework import generics, response, views, status
-from .serializers import ProfileListSerializer, ProfileCreateSerializer, TransactionCreateSerializer
+from .serializers import *
 from .models import Profile
 
 
@@ -22,11 +22,24 @@ class ProfileCreateAPIView(views.APIView):
             return response.Response(profiles.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class TransactionCreateView(views.APIView):
+class TransactionListAPIView(views.APIView):
 
     def get(self, request):
         profiles = Profile.objects.filter(wallet__gt=0.00)
-        serializer = TransactionCreateSerializer(profiles, many=True)
+        serializer = TransactionListSerializer(profiles, many=True)
         return response.Response(serializer.data, status=200)
+
+
+class TransactionCreateAPIView(views.APIView):
+    def post(self, request):
+        profiles = TransactionCreateSerializer(data=request.data)
+        if profiles.is_valid():
+            print("Валидация успешна")
+            pass
+            # profiles.save()
+
+        return response.Response(profiles.errors, status=status.HTTP_400_BAD_REQUEST)
+        # else:
+        #     return response.Response(profiles.errors)
 
 

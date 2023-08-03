@@ -14,6 +14,5 @@ class Profile(models.Model):
         return f'{self.full_name, self.inn}'
 
     class Meta:
-        unique_together = (('full_name', 'inn'),)
         verbose_name = 'Профиль'
         verbose_name_plural = 'Профили'
