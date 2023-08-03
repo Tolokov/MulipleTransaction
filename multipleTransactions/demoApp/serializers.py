@@ -39,8 +39,57 @@ class ProfileCreateSerializer(serializers.ModelSerializer):
         return value
 
 
+class TransactionListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Profile
+        fields = '__all__'
+
+
 class TransactionCreateSerializer(serializers.ModelSerializer):
+    inns = serializers.CharField(max_length=255)
+    inn = serializers.CharField(max_length=12, required=True)
+    wallet = serializers.DecimalField(max_digits=12, decimal_places=2, required=True)
 
     class Meta:
         model = Profile
-        fields = "__all__"
+        fields = ('id', 'full_name', 'inn', 'wallet', 'inns')
+
+    def validate_inns(self, value):
+        if 10 != value.__len__() != 12 and value.count(",") == 0:
+            raise serializers.ValidationError("Введен неверный ИНН")
+        elif value.__len__() > 12 and value.count(",") == 0:
+            raise serializers.ValidationError("Неправильный формат ввода данных")
+        elif value[-1] == ",":
+            raise serializers.ValidationError("Перечисление не может начинаться или заканчиваться разделителем")
+        elif not value.replace(",", "").isdigit():
+            raise serializers.ValidationError(
+                "Идентификационный номер налогоплательщика должен содержать только цифры и запятые")
+
+        inns_split = set(value.split(","))
+        for inn in inns_split:
+            orm_response = Profile.objects.filter(inn=inn)
+            if not bool(orm_response):
+                raise serializers.ValidationError("Одного из пользователей, с представленным ИНН, не существует")
+        return value
+
+    def validate_wallet(self, value):
+        if value <= 0.00:
+            raise serializers.ValidationError("Нельзя переводить отрицательную или нулевую сумму")
+        return value
+
+    def validate(self, data):
+        """Проверяем, есть ли объект с такими же значениями full_name и inn в БД, а так-же количество денег"""
+        full_name = data.get('full_name')
+        inn = data.get('inn')
+        wallet = data.get('wallet')
+
+        if full_name and inn and wallet:
+            queryset = Profile.objects.filter(full_name=full_name, inn=inn)
+            if not queryset.exists():
+                raise serializers.ValidationError(
+                    "Пользователя с такими данными не существует, либо поля 'full_name' и 'inn' не уникальные вместе.")
+
+            if queryset.first().wallet < wallet:
+                raise serializers.ValidationError({'wallet': "У пользователя нет таких денег."})
+
+        return data
