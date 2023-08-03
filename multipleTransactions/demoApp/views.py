@@ -1,6 +1,8 @@
 from rest_framework import generics, response, views, status
+
 from .serializers import *
 from .models import Profile
+from .utils import Transaction
 
 
 class ProfileListAPIView(generics.ListAPIView):
@@ -31,15 +33,14 @@ class TransactionListAPIView(views.APIView):
 
 
 class TransactionCreateAPIView(views.APIView):
+
     def post(self, request):
         profiles = TransactionCreateSerializer(data=request.data)
         if profiles.is_valid():
-            print("Валидация успешна")
-            pass
-            # profiles.save()
+            data = profiles.data
 
+            t = Transaction(
+                payer=data["full_name"], inn=data["inn"], inns=data["inns"], money_to_be_debited=data["wallet"])
+            t.run()
+            return response.Response("Валидация успешна", status=200)
         return response.Response(profiles.errors, status=status.HTTP_400_BAD_REQUEST)
-        # else:
-        #     return response.Response(profiles.errors)
-
-

@@ -8,15 +8,16 @@ from .models import Profile
 class Transaction:
     """Класс для проведения транзакции"""
 
-    def __init__(self, payer, inns: str, money_to_be_debited):
+    def __init__(self, payer, inn, inns: str, money_to_be_debited):
         self.payer = payer
+        self.inn = inn
         self.inns_list = inns.strip(",").split(",")
         self.count_recipients = self.inns_list.__len__()
         self.money = Decimal(money_to_be_debited)
 
     def run(self):
         """Создание и обработка транзакции"""
-        sender_wallet = Profile.objects.get(pk=self.payer.pk).wallet
+        sender_wallet = Profile.objects.get(inn=self.inn).wallet
         recipient_wallets = Profile.objects.filter(inn__in=self.inns_list).values_list('id', 'wallet')
         try:
             up_wallet = self.calculate_average()
@@ -27,9 +28,9 @@ class Transaction:
                 repr(f"Списано {down_wallet} по {up_wallet} с {self.count_recipients} пользователей")
 
         except Exception as e:
-            Profile.objects.get(pk=self.payer.pk).wallet = sender_wallet
+            Profile.objects.get(inn=self.inn).wallet = sender_wallet
             print("Транзакция отменена: ", e)
-            print("Возвращено значение кошелька для ", self.payer, " на ", sender_wallet)
+            print(f"Возвращено значение кошелька для  {self.payer} с  {self.inn}  на {sender_wallet}", )
             for obj in recipient_wallets:
                 Profile.objects.get(id=obj[0]).wallet = obj[1]
                 print("Возвращено значение кошелька получателя №", obj[0], " на ", obj[1])
@@ -58,7 +59,7 @@ class Transaction:
 
     def down_wallet(self, down_wallet):
         """Уменьшение значение Wallet конкретного пользователя"""
-        Profile.objects.filter(pk=self.payer.pk).update(wallet=F("wallet") - down_wallet)
+        Profile.objects.filter(inn=self.inn).update(wallet=F("wallet") - down_wallet)
         return True
 
     def __str__(self):
