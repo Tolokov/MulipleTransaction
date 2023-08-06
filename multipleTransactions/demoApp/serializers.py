@@ -5,8 +5,7 @@ from .models import Profile
 
 
 class ProfileListSerializer(serializers.ModelSerializer):
-    """Перечень пользователей"""
-
+    """Отображение всех записей"""
     user = serializers.SlugRelatedField(slug_field='username', read_only=True)
 
     class Meta:
@@ -14,8 +13,16 @@ class ProfileListSerializer(serializers.ModelSerializer):
         fields = ('user', 'full_name', 'inn', 'wallet')
 
 
+class TransactionListSerializer(serializers.ModelSerializer):
+    """Отображение всех записей, перевод для которых можно осуществить"""
+
+    class Meta:
+        model = Profile
+        fields = '__all__'
+
+
 class ProfileCreateSerializer(serializers.ModelSerializer):
-    """Форма для новой записи"""
+    """Добавление данных к профилю пользователя"""
 
     class Meta:
         model = Profile
@@ -40,13 +47,8 @@ class ProfileCreateSerializer(serializers.ModelSerializer):
         return value
 
 
-class TransactionListSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Profile
-        fields = '__all__'
-
-
 class TransactionCreateSerializer(serializers.ModelSerializer):
+    """Проверка данных для транзакции"""
     inns = serializers.CharField(max_length=255)
     inn = serializers.CharField(max_length=12, required=True)
     wallet = serializers.DecimalField(max_digits=12, decimal_places=2, required=True)
@@ -64,7 +66,7 @@ class TransactionCreateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Перечисление не может начинаться или заканчиваться разделителем")
         elif not value.replace(",", "").isdigit():
             raise serializers.ValidationError(
-                "Идентификационный номер налогоплательщика должен содержать только цифры и запятые")
+                "Поле для идентификационных номеров налогоплательщиков должно содержать только цифры и запятые")
 
         inns_list = list(set(value.split(",")))
         profiles = Profile.objects.filter(inn__in=inns_list)

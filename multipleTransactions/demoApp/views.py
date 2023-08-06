@@ -6,26 +6,25 @@ from .utils import Transaction
 
 
 class ProfileListAPIView(generics.ListAPIView):
-    """Представление списка записей пользователя"""
+    """Отображение всех записей"""
     serializer_class = ProfileListSerializer
     http_method_names = ['get']
-
-    def get_queryset(self):
-        profiles = Profile.objects.all()
-        return profiles
+    queryset = Profile.objects.all()
 
 
 class ProfileCreateAPIView(views.APIView):
+    """Добавление дополнительных данных к существующей учетной записи"""
+
     def post(self, request):
         profiles = ProfileCreateSerializer(data=request.data)
         if profiles.is_valid():
             profiles.save()
             return response.Response(status=status.HTTP_201_CREATED)
-        else:
-            return response.Response(profiles.errors, status=status.HTTP_400_BAD_REQUEST)
+        return response.Response(profiles.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class TransactionListAPIView(views.APIView):
+    """Отображение всех записей, перевод для которых можно осуществить и осуществление транзакции"""
 
     def get(self, request):
         profiles = Profile.objects.filter(wallet__gt=0.00)
@@ -36,9 +35,12 @@ class TransactionListAPIView(views.APIView):
         profiles = TransactionCreateSerializer(data=request.data)
         if profiles.is_valid():
             data = profiles.data
-
             t = Transaction(
-                payer=data["full_name"], inn=data["inn"], inns=data["inns"], money_to_be_debited=data["wallet"])
+                payer=data["full_name"],
+                inn=data["inn"],
+                inns=data["inns"],
+                money_to_be_debited=data["wallet"]
+            )
             t.run()
             return response.Response("Транзакция прошла успешно", status=200)
         return response.Response(profiles.errors, status=status.HTTP_400_BAD_REQUEST)
